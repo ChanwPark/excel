@@ -30,3 +30,5 @@
 *.exe
 *.out
 *.app
+/excel/excel.VC.VC.opendb
+/excel/excel.VC.db
