@@ -82,17 +82,63 @@ namespace MyExcel {
 		}
 	}
 
-	Cell::Cell(string data, int x, int y, Table* table) :data(data), x(x), y(y), table(table) {}
+	///////////////////////////////////////////////////////////////////////////////
+	////////////////////////////Cell//////////////////////////////////////////////
+
+	//StringCell
+
+	Cell::Cell(int x, int y, Table* table) : x(x), y(y), table(table) {}
+
+	StringCell::StringCell(string data, int x, int y, Table* t)
+		: data(data), Cell(x, y, t) {}
+
+	string StringCell::stringify() { return data;  }
+	int StringCell::to_numeric() { return 0; }
 
 
+	//NumberCell
+
+	NumberCell::NumberCell(int data, int x, int y, Table* t)
+		: data(data), Cell(x, y, t) {}
 
 
+	string NumberCell::stringify() { return to_string(data); }
+	int NumberCell::to_numeric() { return data; }
 
-	string Cell::stringify() { return data; }
-	int Cell::to_numeric() { return 0; }
+	//DateCell
+	string DateCell::stringify() {
+		char buf[50]; 
+		tm temp; //변환한 지역 시각을 설정할 메모리 주소 
+		localtime_s(&temp, &data); 
 
+		strftime(buf, 50, "%F", &temp); 
 
+		return string(buf); 
+	}
 
+	int DateCell::to_numeric() { return static_cast<int>(data); }
+
+	DateCell::DateCell(string s, int x, int y, Table* t) : Cell(x, y, t) {
+		//입력받는 Date 형식은 항상 yyyy-mm-dd 꼴이라 가정한다. 
+
+		int year = atoi(s.c_str()); 
+		int month = atoi(s.c_str() + 5);
+		int day = atoi(s.c_str() + 8);
+
+		tm timeinfo; 
+
+		timeinfo.tm_year = year - 1900;
+		timeinfo.tm_mon = month - 1;
+		timeinfo.tm_mday = day;
+		timeinfo.tm_hour = 0;
+		timeinfo.tm_min = 0;
+		timeinfo.tm_sec = 0;
+
+		data = mktime(&timeinfo);
+	}
+
+	class Ex
+	///////////////////////////////////////////////////////////////////////////////
 	Table::Table(int max_row_size, int max_col_size)
 		:max_row_size(max_row_size), max_col_size(max_col_size) {
 
